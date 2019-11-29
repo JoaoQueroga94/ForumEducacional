@@ -19,4 +19,7 @@ export default {
   getNomeSala(state) {
     return state.sala_nome;
   },
+  getPergunta(state) {
+    return state.pergunta;
+  },
 }

@@ -5,6 +5,7 @@ export default {
   id_sala: 0,
   id_pergunta: 0,
   sala_nome: 'dafault',
+  pergunta: 'default',
   nome: 'default',
   email: 'default',
 }

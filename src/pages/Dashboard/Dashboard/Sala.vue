@@ -10,7 +10,7 @@
           </div>
 
           <n-button type="info" round="" @click.native="adicionarQuestao">
-              Adicionar
+            Adicionar
           </n-button>
         </card>
 
@@ -21,7 +21,7 @@
         <card class="card-nav-tabs" header-classes="card-header-warning">
           <span slot="header" class="badge badge-default"> {{questao.data}} </span>
           <p class="card-text"> {{ questao.texto }} </p>
-          <n-button type="info" round="" @click.native="VerRespostas(questao.id)">Ver Respostas</n-button>
+          <n-button type="info" round="" @click.native="VerRespostas(questao.id, questao.texto)">Ver Respostas</n-button>
 
           <n-button type="info" round="" icon="">
             <i class="now-ui-icons ui-1_settings-gear-63"></i>
@@ -100,10 +100,11 @@ export default {
       // always executed
     });
   },
-  VerRespostas(x){
+  VerRespostas(id, pergunta){
     //this.$router.push("/pergunta");
     this.$store.dispatch('irParaPergunta', {
-      pergunta_id: x,
+      pergunta_id:id,
+      pergunta: pergunta,
     })
     this.$router.push('/pergunta');
 

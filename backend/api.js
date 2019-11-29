@@ -80,6 +80,17 @@ router.get('/Busca_sala/:id?', (req, res) =>{
     execSQLQuery('SELECT * FROM sala' + filter, res);
 })
 
+/// Pega as respostas de uma pergunta
+
+router.get('/Respostas_perguntas/:id?', (req, res) =>{
+    let filter = '';
+    if(req.params.id) filter = ' WHERE resposta_pergunta_id =' + req.params.id;
+    execSQLQuery('SELECT * FROM resposta' + filter, res);
+})
+
+
+
+
 ////////////////////////////////////////////// Funcionalidades ////////////////////////////////////////////
 
 //Login
@@ -196,6 +207,31 @@ router.post('/AddAluno', (req, res) =>{
      const id_sala = parseInt(req.body.id_sala);
      execSQLQuery(`INSERT INTO frequencia (frequencia_aluno_id, frequencia_sala_id) VALUES('${id_aluno}','${id_sala}')`, res);
  });
+
+ /// Pega uma resposta pelo id da pergunta e id do user
+
+ router.post('/Busca_resposta', (req, res) =>{
+
+     const id_aluno = parseInt(req.body.id_aluno);
+     const id_pergunta = parseInt(req.body.id_pergunta);
+
+     execSQLQuery(`SELECT * FROM resposta WHERE(resposta_aluno_id = '${id_aluno}' and resposta_pergunta_id =  '${id_pergunta}')`, res);
+ });
+
+ /// Responder
+
+ router.post('/Responder', (req, res) =>{
+
+    const pergunta_id = req.body.id_pergunta;
+    const aluno_id = req.body.id_aluno;
+    const curtidas = 0;
+    const nota = 0.0;
+    const respondida = 1;
+    const resposta = req.body.resposta;
+
+    execSQLQuery(`INSERT INTO resposta (resposta_pergunta_id, resposta_aluno_id, resposta_curtidas, resposta_nota, resposta_respondida, resposta_resposta) VALUES('${pergunta_id}','${aluno_id}','${curtidas}','${nota}','${respondida}','${resposta}')`, res);
+
+});
 
 
 /*

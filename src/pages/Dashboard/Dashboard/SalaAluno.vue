@@ -3,20 +3,20 @@
    
     <div class="row">
         <card class="card-nav-tabs" header-classes="card-header-warning">
-
+          <h5>{{nome_sala}}</h5>
           <h6 class="card-tittle">Responda as perguntas para poder visualizar as respostas</h6>
         
         </card>
         
     </div>
-    <div class="row" v-for="pergunta in perguntas" v-bind:key="pergunta.id">
+    <div class="row" v-for="questao in questoes" v-bind:key="questao.id">
       
         <card class="card-nav-tabs" header-classes="card-header-warning">
-
-          <p class="card-text">{{ pergunta.texto }}</p>
-          <n-button v-if="pergunta.respondida == false" type="info" round="" @click.native="responder(pergunta.id)">Responder</n-button>
-          <n-button v-if="pergunta.respondida == true" type="info" round="" @click.native="VerRespostas(pergunta.id)">Ver Respostas</n-button>
-           <n-button v-if="pergunta.respondida == true" type="info" round="" icon="" @click.native="VerNota(pergunta.nota.toString())">
+          <span slot="header" class="badge badge-default"> {{questao.data}} </span>
+          <p class="card-text">{{ questao.pergunta }}</p>
+          <n-button v-if="questao.respondida == false" type="info" round="" @click.native="responder(questao.id)">Responder</n-button>
+          <n-button v-if="questao.respondida == true" type="info" round="" @click.native="VerRespostas(questao.id)">Ver Respostas</n-button>
+           <n-button v-if="questao.respondida == true" type="info" round="" icon="" @click.native="VerNota(questao.nota.toString())">
             <i class="now-ui-icons travel_info"></i>
           </n-button>
         </card>
@@ -56,17 +56,72 @@ export default {
   },
   data() {
     return {
-      perguntas: [
-        {id: 0, texto: 'Qual o seu nome?', respondida: false, nota: 0 },
-        {id: 1, texto: 'A terra é plana?', respondida: false, nota: 7.3 }
-      ],
-      pergunta_edit: {id: 0, texto: '', respondida: false, nota: 0 }
+      nome_sala: this.$store.state.sala_nome,
+      id_usuario: this.$store.state.id_usuario,
+      questoes: [],
+      questao_edit: {id: 0, pergunta: '',resposta: '', data: '', respondida: false, nota: 0},
     };
   },
+  mounted () {
+    this.CarregarPerguntas();
+  },
   methods: {
+
+    CarregaRespostas(perguntas){
+
+      var self = this;
+      
+      axios.post(url+'/Busca_resposta', {
+        id_aluno: self.id_usuario,
+        id_pergunta: perguntas.pergunta_id,
+      })
+      .then(function (response) {
+
+        if(response.data.length != 0){ // se tiver resposta
+          self.questao_edit.nota = response.data[0].resposta_nota;
+          if(response.data[0].resposta_respondida == 1){
+            self.questao_edit.respondida = true;
+          }
+        }
+
+        self.questao_edit.id = perguntas.pergunta_id;
+        self.questao_edit.pergunta = perguntas.pergunta_pergunta;
+        self.questao_edit.data = perguntas.pergunta_data;
+        
+
+        self.questoes.push(self.questao_edit);
+        self.questao_edit = {id: 0, pergunta: '',resposta: '', data: '', respondida: false, nota: 0};
+
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+
+    },
+
+    CarregarPerguntas(){
+
+      while(this.questoes.length) {
+          this.questoes.pop();
+      }
+      var self = this;
+      var id = this.$store.state.id_sala;
+      axios.get(url+'/Perguntas_Sala/'+id, {
+      }).then(function (response) {
+        
+        for(var i = 0; i < response.data.length; i ++){
+
+          self.CarregaRespostas(response.data[i]);
+
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      })
+    },  
   
 
-  responder(x){
+  responder(id_pergunta){
     
     swal.fire({
       input: 'textarea',
@@ -77,12 +132,27 @@ export default {
       showCancelButton: true
     }).then((result) => {
         if (result.value) {
-          this.perguntas[x].respondida = true;
-          swal.fire({
-            type: 'success',
-            title: 'Resposta enviada',
-            showConfirmButton: true,
+
+          var self = this;
+      
+          axios.post(url+'/Responder', {
+            id_pergunta: id_pergunta,
+            id_aluno: self.id_usuario,
+            resposta: result.value,
           })
+          .then(function (response) {
+            self.CarregarPerguntas();
+            swal.fire({
+              type: 'success',
+              title: 'Resposta enviada',
+              showConfirmButton: true,
+            })
+
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+
         }
       })
   },

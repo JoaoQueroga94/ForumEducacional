@@ -17,7 +17,7 @@
         <card class="card-nav-tabs" header-classes="card-header-warning">  
           <h4 class="card-title">{{ card.titulo }}</h4>
           <p class="card-text">{{ card.desc }}</p>
-          <n-button type="info" round="" @click.native="IrSala(card.id)" >Entrar</n-button>
+          <n-button type="info" round="" @click.native="IrSala(card.id, card.titulo)" >Entrar</n-button>
 
         </card>
 
@@ -61,7 +61,9 @@ export default {
       
       cards: [],
       salaEdit: {id: 0, titulo: '', desc: '', cod:''},
-      salaAchada: {id: 0, titulo: '', desc: '', cod:''},
+      
+      SalaAchadaId: 0,
+      UsuarioId: this.$store.state.id_usuario,
       
     };
   },
@@ -74,11 +76,33 @@ export default {
 
   methods: {
 
-    IrSala(x){
-
-      console.log(x);
+    Entrar(){
       
-      //this.$router.push("/sala_aluno");
+      var self = this;
+       
+      axios.post(url+'/EntrarSala', {
+        id_aluno: this.UsuarioId,
+        id_sala: this.SalaAchadaId,
+      })
+      .then(function (response) {
+        //window.location.reload();
+        self.CarregaSalas();
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+                  
+    },
+
+
+    IrSala(id, name){
+
+      this.$store.dispatch('irParaSala', {
+        user_sala_id: id,
+        sala_nome: name,
+      })
+      
+      this.$router.push("/sala_aluno");
     },
 
     EntrarSala () {
@@ -104,14 +128,14 @@ export default {
 
         if (result.value) { // se inseriu um codigo
           var id_sala;
-          var id_aluno = this.$store.state.id_usuario;
-
+          
+          var self = this;
           axios.get(url+'/Busca_sala/'+"'"+result.value+"'", {  // busca a sala no banco 
           }).then(function (response) {
 
             
             if(response.data.length != 0){  // sala encontrada
-              id_sala = response.data[0].sala_id;
+              self.SalaAchadaId = response.data[0].sala_id;
               swal.fire({
                 type: 'success',
                 title: 'Sala encontrada!',
@@ -123,19 +147,9 @@ export default {
               }).then((result) => {
                 if (result.value) {
 
-      
-                  var self = this;
-                  axios.post(url+'/EntrarSala', {
-                    id_aluno: id_aluno,
-                    id_sala: id_sala,
-                  })
-                  .then(function (response) {
-                    window.location.reload();
-                  })
-                  .catch(function (error) {
-                    console.log(error);
-                  });
-              
+                    //console.log(self.SalaAchadaId);
+                    self.Entrar();
+                    
                   }
                 })
 

@@ -4,8 +4,8 @@
     <div class="row">
 
         <card class="card-nav-tabs" header-classes="card-header-warning">
-          <p class="card-title">Sala de Geografia</p>
-          <h6 class="card-subtitle mb-2 text-muted">No território brasileiro, como explicar a ausência de cadeias montanhosas?</h6>
+          <p class="card-title">{{this.nome_sala}}</p>
+          <h6 class="card-subtitle mb-2 text-muted">{{this.pergunta}}</h6>
         </card>
 
     </div>
@@ -14,18 +14,18 @@
     <div style="background-color: #ebecf1;">
       <time-line type="simple">
           
-          <time-line-item inverted="" badge-type="info" badge-icon="now-ui-icons ui-2_chat-round">
-            <span slot="header" class="badge badge-info">João Queroga -- 10 <i class="now-ui-icons ui-2_like"></i></span> 
+          <time-line-item inverted="" badge-type="info" badge-icon="now-ui-icons ui-2_chat-round" v-for="resposta in respostas" v-bind:key="resposta.id">
+            <span slot="header" class="badge badge-info">Aluno -- {{resposta.curtidas}} <i class="now-ui-icons ui-2_like"></i></span> 
             <div slot="content">
               <p>
-                Os homens cavaram tanto que virou planície...
+                {{resposta.resposta}}
               </p>
               
               <span slot="footer">
                 <br>
                 <slider v-model="sliderValue" type="info" :range="{min: 0, max: 10}"  :options="{step: 1}"></slider>
                 <br>
-                <n-button type="success" round="" size="sm" @click.native="AtribuirNota">Salvar a nota: {{parseInt(this.sliderValue*100)/100}}</n-button>
+                <n-button type="success" round="" size="sm" @click.native="AtribuirNota">Salvar a nota: {{parseInt(sliderValue*100)/100}}</n-button>
           
               </span>
             </div>
@@ -41,6 +41,10 @@
   </div>
 </template>
 <script>
+
+const axios = require('axios');
+import url from 'src/data.js';
+
 import {
   StatsCard,
   Card,
@@ -75,14 +79,52 @@ export default {
   data() {
     return {
       //NovaQuestao: this.$store.state.id_pergunta, //'',
+      pergunta: this.$store.state.pergunta,
+      nome_sala: this.$store.state.sala_nome,
       sliderValue: 0,
-      cards: [],
+      respostas: [],
 
-      comentario_edit: {id: 0, usuario: '', resposta: '', nota: 0, curtidas: 0}
+      respostas_edit: {id: 0, usuario: '', resposta: '', nota: 0, curtidas: 0}
 
     };
   },
+  mounted () {
+    this.CarregarRespostas();
+  },
   methods: {
+
+  CarregarRespostas(){
+
+      while(this.respostas.length) {
+          this.respostas.pop();
+      }
+      var self = this;
+      var id = this.$store.state.id_pergunta;
+      axios.get(url+'/Respostas_perguntas/'+id, {
+      }).then(function (response) {
+
+        console.log(response.data);
+        console.log(id);
+        
+        
+        for(var i = 0; i < response.data.length; i ++){
+          
+          
+
+          self.respostas_edit.id = response.data[i].resposta_id;
+          self.respostas_edit.resposta = response.data[i].resposta_resposta;
+          self.respostas_edit.nota = response.data[i].resposta_nota;
+          self.respostas_edit.curtidas = response.data[i].resposta_curtidas;
+
+          self.respostas.push(self.respostas_edit);
+          self.respostas_edit = {id: 0, usuario: '', resposta: '', nota: 0, curtidas: 0};
+
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      })
+  },  
 
   CriarPergunta(x){
     //this.$router.push("/sala");

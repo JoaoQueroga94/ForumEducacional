@@ -22,4 +22,7 @@ export default {
   setNomeSala(state, payload) {
     state.sala_nome = payload;
   },
+  setPergunta(state, payload) {
+    state.pergunta = payload;
+  },
 }

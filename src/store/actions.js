@@ -16,8 +16,9 @@ export default {
       commit('setIdSala', user_sala_id);
       commit('setNomeSala', sala_nome);
     },
-    irParaPergunta({ commit }, { pergunta_id } ) {
+    irParaPergunta({ commit }, { pergunta_id, pergunta } ) {
       commit('setIdPergunta', pergunta_id);
+      commit('setPergunta', pergunta);
     },
     DadosUsuarios({ commit }, { id, nome, email } ) {
       commit('setNome', nome);
