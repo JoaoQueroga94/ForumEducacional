@@ -48,6 +48,13 @@ router.get('/professor/:id?', (req, res) =>{
     execSQLQuery('SELECT * FROM professor' + filter, res);
 })
 
+// mostra nome e email do aluno pelo id
+router.get('/Nome_aluno/:id?', (req, res) =>{
+    let filter = '';
+    if(req.params.id) filter = ' WHERE aluno_id=' + parseInt(req.params.id);
+    execSQLQuery('SELECT aluno_nome, aluno_email FROM aluno' + filter, res);
+})
+
 ///// Mostrar Salas de um professor
 router.get('/Salas_Professor/:id?', (req, res) =>{
     let filter = '';
@@ -88,6 +95,13 @@ router.get('/Respostas_perguntas/:id?', (req, res) =>{
     execSQLQuery('SELECT * FROM resposta' + filter, res);
 })
 
+//retorna os id de alunos em uma sala
+
+router.get('/idAlunosSala/:id?', (req, res) =>{
+    let filter = '';
+    if(req.params.id) filter = ' WHERE frequencia_sala_id =' + req.params.id;
+    execSQLQuery('SELECT frequencia_aluno_id FROM frequencia' + filter, res);
+})
 
 
 
@@ -224,13 +238,25 @@ router.post('/AddAluno', (req, res) =>{
 
     const pergunta_id = req.body.id_pergunta;
     const aluno_id = req.body.id_aluno;
+    const aluno_nome = req.body.nome_aluno;
     const curtidas = 0;
     const nota = 0.0;
     const respondida = 1;
     const resposta = req.body.resposta;
 
-    execSQLQuery(`INSERT INTO resposta (resposta_pergunta_id, resposta_aluno_id, resposta_curtidas, resposta_nota, resposta_respondida, resposta_resposta) VALUES('${pergunta_id}','${aluno_id}','${curtidas}','${nota}','${respondida}','${resposta}')`, res);
+    execSQLQuery(`INSERT INTO resposta (resposta_pergunta_id, resposta_aluno_id, resposta_aluno_nome, resposta_curtidas, resposta_nota, resposta_respondida, resposta_resposta) VALUES('${pergunta_id}','${aluno_id}','${aluno_nome}','${curtidas}','${nota}','${respondida}','${resposta}')`, res);
 
+});
+
+
+// Dar Nota
+
+router.post('/Atribuir_nota', (req, res) =>{
+
+    const id_resposta = parseInt(req.body.id_resposta);
+    const nota = parseFloat(req.body.nota);
+
+    execSQLQuery(`UPDATE resposta SET resposta_nota = '${nota}' WHERE resposta_id = '${id_resposta}'`, res);
 });
 
 

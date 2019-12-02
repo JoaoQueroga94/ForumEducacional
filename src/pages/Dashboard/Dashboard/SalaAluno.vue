@@ -15,7 +15,7 @@
           <span slot="header" class="badge badge-default"> {{questao.data}} </span>
           <p class="card-text">{{ questao.pergunta }}</p>
           <n-button v-if="questao.respondida == false" type="info" round="" @click.native="responder(questao.id)">Responder</n-button>
-          <n-button v-if="questao.respondida == true" type="info" round="" @click.native="VerRespostas(questao.id)">Ver Respostas</n-button>
+          <n-button v-if="questao.respondida == true" type="info" round="" @click.native="VerRespostas(questao.id, questao.pergunta)">Ver Respostas</n-button>
            <n-button v-if="questao.respondida == true" type="info" round="" icon="" @click.native="VerNota(questao.nota.toString())">
             <i class="now-ui-icons travel_info"></i>
           </n-button>
@@ -58,6 +58,7 @@ export default {
     return {
       nome_sala: this.$store.state.sala_nome,
       id_usuario: this.$store.state.id_usuario,
+      nome_usuario: this.$store.state.nome,
       questoes: [],
       questao_edit: {id: 0, pergunta: '',resposta: '', data: '', respondida: false, nota: 0},
     };
@@ -138,6 +139,7 @@ export default {
           axios.post(url+'/Responder', {
             id_pergunta: id_pergunta,
             id_aluno: self.id_usuario,
+            nome_aluno: self.nome_usuario,
             resposta: result.value,
           })
           .then(function (response) {
@@ -158,7 +160,11 @@ export default {
   },
 
 
-  VerRespostas(x){
+  VerRespostas(id, pergunta){
+    this.$store.dispatch('irParaPergunta', {
+      pergunta_id:id,
+      pergunta: pergunta,
+    })
     this.$router.push("/pergunta_aluno");
   },
   VerNota(x){

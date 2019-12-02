@@ -8,10 +8,17 @@
           <div>
             <fg-input placeholder="Inserir nova questão" v-model="textoQuestao"></fg-input>
           </div>
+          <div id="rodape">
 
-          <n-button type="info" round="" @click.native="adicionarQuestao">
-            Adicionar
-          </n-button>
+            <n-button type="info" round="" @click.native="adicionarQuestao">
+              Adicionar
+            </n-button>
+            <n-button type="info" round="" id="botao" @click.native="InfoSala">
+              <i class="now-ui-icons business_chart-bar-32"></i> Detalhes da sala
+            </n-button>
+
+          </div>
+            
         </card>
 
     </div>
@@ -154,10 +161,21 @@ export default {
         timer: 3000,
       })
     }
+  },
+  InfoSala(){
+    this.$router.push('/infoSala');
   }
   }
 };
 </script>
 <style>
+#rodape{
+ display: block;
+ position: relative;
+}
+#botao{
+  position: absolute;
+  right: 0;
+}
 </style>
 

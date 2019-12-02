@@ -42,6 +42,7 @@ const SalaA = () => import('src/pages/Dashboard/Dashboard/SalaAluno.vue');
 const Pergunta = () => import('src/pages/Dashboard/Dashboard/Pergunta.vue');
 const PerguntaA = () => import('src/pages/Dashboard/Dashboard/PerguntaAluno.vue');
 const DashboardA = () => import('src/pages/Dashboard/Dashboard/DashboardAluno.vue');
+const InfoSala = () => import('src/pages/Dashboard/Dashboard/InfoSala.vue');
 import Widgets from 'src/pages/Dashboard/Widgets.vue';
 
 // Forms pages
@@ -285,6 +286,11 @@ const routes = [
         path: 'pergunta',
         name: 'Questão',
         components: { default: Pergunta, header: DefaultHeader }
+      },
+      {
+        path: 'infoSala',
+        name: 'Informação da Sala',
+        components: { default: InfoSala, header: DefaultHeader }
       },
       
     ]

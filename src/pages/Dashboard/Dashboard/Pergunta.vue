@@ -15,7 +15,7 @@
       <time-line type="simple">
           
           <time-line-item inverted="" badge-type="info" badge-icon="now-ui-icons ui-2_chat-round" v-for="resposta in respostas" v-bind:key="resposta.id">
-            <span slot="header" class="badge badge-info">Aluno -- {{resposta.curtidas}} <i class="now-ui-icons ui-2_like"></i></span> 
+            <span slot="header" class="badge badge-info">{{resposta.usuario}} -- {{resposta.curtidas}} <i class="now-ui-icons ui-2_like"></i></span> 
             <div slot="content">
               <p>
                 {{resposta.resposta}}
@@ -23,9 +23,9 @@
               
               <span slot="footer">
                 <br>
-                <slider v-model="sliderValue" type="info" :range="{min: 0, max: 10}"  :options="{step: 1}"></slider>
+                <slider v-model="resposta.nota" type="info" :range="{min: 0, max: 10}"  :options="{step: 1}"></slider>
                 <br>
-                <n-button type="success" round="" size="sm" @click.native="AtribuirNota">Salvar a nota: {{parseInt(sliderValue*100)/100}}</n-button>
+                <n-button type="success" round="" size="sm" @click.native="AtribuirNota(resposta.id, resposta.nota)">Salvar a nota: {{parseInt(resposta.nota*100)/100}}</n-button>
           
               </span>
             </div>
@@ -93,6 +93,16 @@ export default {
   },
   methods: {
 
+  PegarNome(id){
+    axios.get(url+'/Nome_aluno/'+id, {  // pega o nome do aluno
+    }).then(function (response) {
+      return response.data[0].aluno_nome;
+    })
+    .catch(function (error) {
+      console.log(error);
+    })
+  },
+
   CarregarRespostas(){
 
       while(this.respostas.length) {
@@ -102,15 +112,10 @@ export default {
       var id = this.$store.state.id_pergunta;
       axios.get(url+'/Respostas_perguntas/'+id, {
       }).then(function (response) {
-
-        console.log(response.data);
-        console.log(id);
-        
         
         for(var i = 0; i < response.data.length; i ++){
-          
-          
 
+          self.respostas_edit.usuario = response.data[i].resposta_aluno_nome;
           self.respostas_edit.id = response.data[i].resposta_id;
           self.respostas_edit.resposta = response.data[i].resposta_resposta;
           self.respostas_edit.nota = response.data[i].resposta_nota;
@@ -124,14 +129,17 @@ export default {
       .catch(function (error) {
         console.log(error);
       })
-  },  
+  }, 
 
-  CriarPergunta(x){
-    //this.$router.push("/sala");
-  },
+  AtribuirNota (id, nota) {
+    var self = this;
+    axios.post(url+'/Atribuir_nota', {
+        id_resposta: id,
+        nota: nota,
+      })
+      .then(function (response) {
 
-  AtribuirNota () {
-        this.$notify(
+        self.$notify(
           {
             message: 'Nota atribuída',
             icon: 'now-ui-iconsw ui-1_check',
@@ -139,7 +147,11 @@ export default {
             verticalAlign: 'top',
             type: "info",
           })
-      }
+      })
+      .catch(function (error) {
+        console.log(error);
+      }); 
+    }
   }
 };
 </script>

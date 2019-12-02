@@ -4,8 +4,8 @@
     <div class="row">
 
         <card class="card-nav-tabs" header-classes="card-header-warning">
-          <p class="card-title">Sala de Geografia</p>
-          <h6 class="card-subtitle mb-2 text-muted">No território brasileiro, como explicar a ausência de cadeias montanhosas?</h6>
+          <p class="card-title">{{this.nome_sala}}</p>
+          <h6 class="card-subtitle mb-2 text-muted">{{this.pergunta}}</h6>
         </card>
 
     </div>
@@ -16,38 +16,21 @@
           
 
           
-          <time-line-item inverted="" badge-type="info" badge-icon="now-ui-icons ui-2_chat-round">
-            <span slot="header" class="badge badge-info">Fábio Michel</span>
+          <time-line-item inverted="" badge-type="info" badge-icon="now-ui-icons ui-2_chat-round" v-for="resposta in respostas" v-bind:key="resposta.id">
+            <span slot="header" class="badge badge-info">{{resposta.usuario}}</span>
             <div slot="content">
               <p>
-                Pois o relevo brasileiro é antigo, e as montanhas que existiam aqui há milhões de anos atrás foram sendo desgastadas com o passar do tempo, por causa da ação das chuvas, ventos, sedimentações, etc. Então essas antigas montanhas se transformaram nas serras que conhecemos hoje.</p>
-              <p>
+                {{resposta.resposta}}
+              </p>
               <hr>
               <span slot="footer">
-                16
+                {{resposta.curtidas}}
                 <n-button type="primary" round="" icon="">
                   <i class="now-ui-icons ui-2_like"></i>
                 </n-button>
               </span>
             </div>
           </time-line-item>
-
-          <time-line-item inverted="" badge-type="info" badge-icon="now-ui-icons ui-2_chat-round">
-            <span slot="header" class="badge badge-info">João Queroga</span>
-            <div slot="content">
-              <p>
-                Os homens cavaram tanto que virou planície...
-              <p>
-              <hr>
-              <span slot="footer">
-                1
-                <n-button type="primary" round="" icon="">
-                  <i class="now-ui-icons ui-2_like"></i>
-                </n-button>
-              </span>
-            </div>
-          </time-line-item>
-
           
 
         </time-line>
@@ -75,6 +58,9 @@ import {Slider} from 'src/components'
 
 import swal from 'sweetalert2';
 
+const axios = require('axios');
+import url from 'src/data.js';
+
 export default {
   components: {
     Checkbox,
@@ -91,16 +77,45 @@ export default {
   },
   data() {
     return {
-      NovaQuestao: '',
+      pergunta: this.$store.state.pergunta,
+      nome_sala: this.$store.state.sala_nome,
       sliderValue: 0,
-      sliderValue2: 0,
+      respostas: [],
+
+      respostas_edit: {id: 0, usuario: '', resposta: '', nota: 0, curtidas: 0}
     };
   },
+  mounted () {
+    this.CarregarRespostas();
+  },
   methods: {
+    CarregarRespostas(){
 
-  CriarPergunta(x){
-    //this.$router.push("/sala");
-  }
+      while(this.respostas.length) {
+          this.respostas.pop();
+      }
+      var self = this;
+      var id = this.$store.state.id_pergunta;
+      axios.get(url+'/Respostas_perguntas/'+id, {
+      }).then(function (response) {
+        
+        for(var i = 0; i < response.data.length; i ++){
+
+          self.respostas_edit.usuario = response.data[i].resposta_aluno_nome;
+          self.respostas_edit.id = response.data[i].resposta_id;
+          self.respostas_edit.resposta = response.data[i].resposta_resposta;
+          self.respostas_edit.nota = response.data[i].resposta_nota;
+          self.respostas_edit.curtidas = response.data[i].resposta_curtidas;
+
+          self.respostas.push(self.respostas_edit);
+          self.respostas_edit = {id: 0, usuario: '', resposta: '', nota: 0, curtidas: 0};
+
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      })
+  },  
 
 
   }
